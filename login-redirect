@@ -1,0 +1,103 @@
+
+/* custom login*/
+function setRedirect( $redirect_to, $request, $user ) {
+	
+	if( is_user_logged_in() ) {
+
+		$user = wp_get_current_user();
+		$roles = ( array ) $user->roles;
+		
+		if( $roles != 'subscriber' ) {
+			$redirect_to = wp_redirect( '/wp-admin/');
+		} else {
+			$redirect_to = is_page('member-area');
+		}
+		return $redirect_to;
+	}
+}
+ 
+add_filter( 'login_redirect', 'setRedirect', 10, 3 );
+
+/* check user as a subscriber */
+add_action('init', 'membersOnly');
+function membersOnly() {
+    add_shortcode('restricted', 'membersOnlyCallBack');
+}
+
+/* call back function */
+function membersOnlyCallBack($args, $content=null) {
+    // if the user is logged in just show them the content.  You could check
+    // rolls and capabilities here if you wanted as well
+    if(is_user_logged_in()) {
+		return $content;
+	} else {
+		return wp_redirect( '/wp-admin/');
+	}
+   
+}
+
+============================
+/* custom redirect login */
+if( !function_exists('custom_redirect') ) {
+    function custom_redirect( $redirect, $user ) {
+
+		$user = wp_get_current_user();
+        $role = $user->roles[0];
+		
+        $dashboard = admin_url();
+
+        if( $role == 'administrator' ) {
+
+            // Redirect administrators to the dashboard
+            $redirect = $dashboard;
+        } elseif ( $role == 'shop-manager' ) {
+
+            // Redirect shop managers to the dashboard
+            $redirect = $dashboard;
+        } elseif ( $role == 'editor' ) {
+
+            // Redirect editors to the dashboard
+            $redirect = $dashboard;
+
+        } elseif ( $role == 'author' ) {
+
+            // Redirect authors to the dashboard
+            $redirect = $dashboard;
+
+        } elseif ( $role == 'customer' || $role == 'subscriber' ) {
+
+            // Redirect customers and subscribers to the "My Account" page
+            // $redirect = get_permalink( wc_get_page_id( 'myaccount' ) );
+            $redirect = is_page('member-area');
+			
+        } elseif ( $role == 'jsa_contributor' ) {
+
+            // Redirect JSA Contributor to the " JSA Contributor Dashboard" page
+            if( get_option('jsa_contributor_dashboard_page_id') ) { 
+                $redirect  = get_permalink( get_option('jsa_contributor_dashboard_page_id') ); 
+            } else {
+                $redirect = home_url();
+            }; 
+        /*
+		} elseif ( $role == 'JSA Member' ) {
+
+            // Redirect Jsa to the "JSA Member Dashboard" page
+            if( get_option('jsa_member_dashboard_page_id') ) { 
+                $redirect = get_permalink( get_option('jsa_member_dashboard_page_id') ); 
+            } else {
+                $redirect = home_url();
+            };
+		*/
+        } else {
+
+            // Redirect any other role to the previous visited page or, if not available, to the home
+            $redirect = wp_get_referer() ? wp_get_referer() : home_url();
+        }
+        return $redirect;
+    }
+}
+
+add_filter( 'login_redirect', 'custom_redirect', 10, 2 );
+*/
+
+
