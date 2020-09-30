@@ -1,0 +1,67 @@
+
+/* custom login */
+function redirectRole(){
+	global $current_user;
+	$user_roles = $current_user->roles;
+	$roles = array_shift($user_roles);	
+	
+	if( $roles != 'subscriber' ) { 
+		$redirect_to = wp_redirect( '/wp-admin/index.php');
+	}
+	//return 'showrole: ' . $roles;
+}
+add_shortcode( 'ShowRole', 'redirectRole' );
+
+function setRedirectPage() {
+    if ( is_page('member-area') && ! is_user_logged_in() ) {
+        wp_redirect( '/wp-admin/');
+        exit;
+    }
+}
+add_action( 'template_redirect', 'setRedirectPage' );
+
+/* custom login 
+function setRedirect( $redirect_to, $request, $user ) {
+	if( is_user_logged_in() ) {
+		global $current_user;
+		$user_roles = $current_user->roles;
+		$roles = array_shift($user_roles);	
+		
+		if( $roles != 'subscriber' ) {
+			$redirect_to = wp_redirect( '/wp-admin/index.php');
+			//$redirect_to = get_option('siteurl') . '/wp-admin/index.php';
+		} else {
+			$redirect_to = is_page('member-area');
+		}
+		return $redirect_to;
+	}
+}
+add_filter( 'login_redirect', 'setRedirect', 10, 3 );
+*/
+
+/* check user as a subscriber 
+add_action('init', 'membersOnly');
+function membersOnly() {
+    add_shortcode('restricted', 'membersOnlyCallBack');
+}
+*/
+/* call back function 
+function membersOnlyCallBack($args, $content=null) {
+    if(is_user_logged_in()) {
+		return $content;
+	} else {
+		return wp_redirect( '/wp-admin/');
+	}
+}
+
+add_action('init', 'checkPage');
+function checkPage(){
+	if ( is_page('member-area') ) {
+		if(is_user_logged_in()) {
+			return $content;
+		} else {
+			return wp_redirect( '/wp-admin/');
+		}
+	}
+}
+*/
